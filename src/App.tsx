@@ -43,6 +43,7 @@ const LetterCard = ({ letter, onClick, clicked }: LetterCardProps) => {
 
 function App() {
   const [delay, setDelay] = useState<number>();
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const [isPending, startTransition] = useTransition();
   const [clicked, setClicked] = useState<string[]>([]);
 
