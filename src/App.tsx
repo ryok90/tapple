@@ -1,117 +1,114 @@
 import {
-  AspectRatio,
-  Badge,
   Box,
   Button,
   Center,
-  CircularProgress,
-  CircularProgressLabel,
   HStack,
   SimpleGrid,
-  Text,
+  Tag,
 } from '@chakra-ui/react';
 import { useEffect, useState, useTransition } from 'react';
-
-const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-type LetterCardProps = {
-  letter: string;
-  onClick: () => void;
-  clicked: boolean;
-};
-
-const LetterCard = ({ letter, onClick, clicked }: LetterCardProps) => {
-  return (
-    <AspectRatio
-      m={{ base: 1.5, md: 2, lg: 3 }}
-      ratio={5 / 3}
-      bgColor={clicked ? 'gray.700' : 'teal.800'}
-      borderRadius={10}
-      onClick={clicked ? undefined : onClick}
-    >
-      <Center>
-        <Text
-          fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
-          fontWeight="bold"
-        >
-          {letter}
-        </Text>
-      </Center>
-    </AspectRatio>
-  );
-};
+import { alphabet, themes } from './cconstants';
+import { LetterCard } from './LetterCard';
+import { Timer } from './Timer';
 
 function App() {
-  const [delay, setDelay] = useState<number>();
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const [isPending, startTransition] = useTransition();
   const [clicked, setClicked] = useState<string[]>([]);
+  const [gameTimer, setGameTimer] = useState<number>();
+  const [themeTimer, setThemeTimer] = useState<number>();
+  const [theme, setTheme] = useState<string>();
+
+  const gameOver = gameTimer === 0;
+  const gameOn = Boolean(gameTimer);
 
   useEffect(() => {
-    if (!delay) return;
+    if (!themeTimer) return;
 
     const timer = setInterval(() => {
       startTransition(() => {
-        setDelay(delay - 1);
+        setThemeTimer(themeTimer - 1);
+        setTheme(themes[Math.floor(Math.random() * themes.length)]);
       });
-    }, 100);
+    }, 50);
 
-    if (delay === 0) {
+    return () => {
       clearInterval(timer);
-      setDelay(-1);
+    };
+  }, [themeTimer]);
+
+  useEffect(() => {
+    if (!gameTimer) return;
+
+    const timer = setInterval(
+      () => {
+        startTransition(() => {
+          setGameTimer(gameTimer - 1);
+        });
+      },
+      gameTimer === 100 ? 500 : 100
+    );
+
+    if (gameTimer === 0) {
+      clearInterval(timer);
+      setGameTimer(-1);
     }
 
     return () => {
       clearInterval(timer);
     };
-  }, [delay]);
+  }, [gameTimer]);
 
   return (
-    <Box h="100vh" w="100vw" p={5} color={'gray.300'} bgColor={'gray.800'}>
+    <Box h="100%" w="100%" p={5} color={'gray.300'} bgColor={'gray.800'}>
       <HStack mb="5" h="32" alignItems={'center'} justifyContent={'center'}>
-        {!delay ? (
-          <>
-            {delay === 0 && (
-              <Badge colorScheme={'red'} variant={'solid'} fontSize="sm">
-                You lost!
-              </Badge>
-            )}
+        <HStack spacing="5">
+          {gameOver && (
+            <Tag
+              size="lg"
+              colorScheme={'red'}
+              variant={'solid'}
+              fontWeight="bold"
+            >
+              You lost!
+            </Tag>
+          )}
+          {gameTimer && <Timer timeLeft={gameTimer} />}
+          <Center w="52">
+            <Tag
+              size="lg"
+              colorScheme={themeTimer ? 'yellow' : 'green'}
+              variant={'solid'}
+              fontWeight="bold"
+              onClick={() => setThemeTimer(20)}
+            >
+              {theme ?? 'Sort a theme'}
+            </Tag>
+          </Center>
+          {!gameOn ? (
             <Button
               colorScheme={'teal'}
               onClick={() => {
                 setClicked([]);
-                setDelay(100);
+                setGameTimer(100);
               }}
               size="lg"
             >
-              Start{delay === 0 && ' Again'}
+              Start{gameTimer === 0 && ' Again'}
             </Button>
-          </>
-        ) : (
-          <Center>
-            <CircularProgress
-              value={delay}
-              color={
-                delay > 60 ? 'teal.500' : delay > 30 ? 'yellow.500' : 'red.500'
-              }
-              size={'8rem'}
-              thickness={'0.75rem'}
-              trackColor={'gray.300'}
+          ) : (
+            <Button
+              colorScheme={'orange'}
+              onClick={() => {
+                setClicked([]);
+                setGameTimer(undefined);
+              }}
+              size="lg"
             >
-              <CircularProgressLabel fontSize={'2xl'} fontWeight="bold">
-                {((delay ?? 0) / 10).toFixed(1)}
-              </CircularProgressLabel>
-            </CircularProgress>
-            <Box>
-              <Text
-                fontWeight={'bold'}
-                fontSize="6xl"
-                color={'teal.500'}
-              ></Text>
-            </Box>
-          </Center>
-        )}
-        <Text></Text>
+              End round
+            </Button>
+          )}
+        </HStack>
       </HStack>
       <SimpleGrid columns={{ base: 4, md: 5, lg: 6 }}>
         {alphabet.map((letter) =>
@@ -119,8 +116,8 @@ function App() {
             letter,
             clicked: clicked.includes(letter),
             onClick: () => {
-              if (!delay) return;
-              setDelay(100);
+              if (!gameTimer) return;
+              setGameTimer(100);
               setClicked((clicked) => [...clicked, letter]);
             },
           })
