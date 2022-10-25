@@ -3,13 +3,22 @@ import {
   Button,
   Center,
   HStack,
+  Select,
   SimpleGrid,
   Tag,
+  VStack,
 } from '@chakra-ui/react';
-import { useEffect, useState, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 import { alphabet, themes } from './cconstants';
-import { LetterCard } from './LetterCard';
-import { Timer } from './Timer';
+import { LetterCard } from './components/LetterCard';
+import { Timer } from './components/Timer';
+import Sound from 'react-sound';
 
 function App() {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -18,9 +27,32 @@ function App() {
   const [gameTimer, setGameTimer] = useState<number>();
   const [themeTimer, setThemeTimer] = useState<number>();
   const [theme, setTheme] = useState<string>();
+  const [playBell, setPlayBell] = useState(false);
 
-  const gameOver = gameTimer === 0;
-  const gameOn = Boolean(gameTimer);
+  const gameOver = useMemo(() => gameTimer === 0, [gameTimer]);
+  const gameOn = useMemo(() => Boolean(gameTimer), [gameTimer]);
+
+  const onClickStart = () => {
+    setClicked([]);
+    setGameTimer(100);
+  };
+
+  const onClickEnd = () => {
+    setClicked([]);
+    setGameTimer(undefined);
+  };
+
+  const onClickLetter = useCallback(
+    (letter: string) => {
+      return () => {
+        if (!gameTimer) return;
+        setGameTimer(100);
+        if (clicked.length === alphabet.length - 1) return setClicked([]);
+        setClicked((clicked) => [...clicked, letter]);
+      };
+    },
+    [gameTimer, clicked.length]
+  );
 
   useEffect(() => {
     if (!themeTimer) return;
@@ -38,7 +70,8 @@ function App() {
   }, [themeTimer]);
 
   useEffect(() => {
-    if (!gameTimer) return;
+    if (gameTimer === 0) return setPlayBell(true);
+    if (gameTimer === undefined) return;
 
     const timer = setInterval(
       () => {
@@ -49,81 +82,104 @@ function App() {
       gameTimer === 100 ? 500 : 100
     );
 
-    if (gameTimer === 0) {
-      clearInterval(timer);
-      setGameTimer(-1);
-    }
-
     return () => {
       clearInterval(timer);
     };
   }, [gameTimer]);
 
   return (
-    <Box h="100%" w="100%" p={5} color={'gray.300'} bgColor={'gray.800'}>
-      <HStack mb="5" h="32" alignItems={'center'} justifyContent={'center'}>
-        <HStack spacing="5">
-          {gameOver && (
-            <Tag
-              size="lg"
-              colorScheme={'red'}
-              variant={'solid'}
-              fontWeight="bold"
-            >
-              You lost!
-            </Tag>
-          )}
-          {gameTimer && <Timer timeLeft={gameTimer} />}
-          <Center w="52">
-            <Tag
-              size="lg"
-              colorScheme={themeTimer ? 'yellow' : 'green'}
-              variant={'solid'}
-              fontWeight="bold"
-              onClick={() => setThemeTimer(20)}
-            >
-              {theme ?? 'Sort a theme'}
-            </Tag>
-          </Center>
-          {!gameOn ? (
+    <Center h="100%" w="100%">
+      <Sound
+        playStatus={gameOn ? 'PLAYING' : 'STOPPED'}
+        url="/tapple/assets/ticking-clock.mp3"
+        volume={20}
+        loop
+      />
+      <Sound
+        playStatus={playBell ? 'PLAYING' : 'STOPPED'}
+        onFinishedPlaying={() => setPlayBell(false)}
+        url="/tapple/assets/bell-ding.mp3"
+        volume={20}
+      />
+      <Box
+        h="100%"
+        w="100%"
+        maxW="container.xl"
+        p={5}
+        color={'gray.300'}
+        bgColor={'gray.800'}
+      >
+        <HStack mb="5" h="32" alignItems={'center'} justifyContent={'center'}>
+          <VStack spacing={4} w="56">
             <Button
               colorScheme={'teal'}
-              onClick={() => {
-                setClicked([]);
-                setGameTimer(100);
-              }}
-              size="lg"
+              onClick={() => setThemeTimer(20)}
+              size={{ base: 'md', sm: 'lg' }}
             >
-              Start{gameTimer === 0 && ' Again'}
+              Sort Theme
             </Button>
-          ) : (
-            <Button
-              colorScheme={'orange'}
-              onClick={() => {
-                setClicked([]);
-                setGameTimer(undefined);
-              }}
-              size="lg"
+            <Select
+              w={{ base: '36', lg: '44' }}
+              size={{ base: 'xs', md: 'sm' }}
+              variant={'solid'}
+              fontWeight="bold"
+              placeholder="Sort or select"
+              value={theme}
+              disabled={Boolean(themeTimer)}
+              onChange={(event) => setTheme(event.currentTarget.value)}
             >
-              End round
-            </Button>
-          )}
+              {themes.map((item, index) => (
+                <option value={item} key={item + index}>
+                  {item}
+                </option>
+              ))}
+            </Select>
+          </VStack>
+          <Timer timeLeft={gameTimer === undefined ? 100 : gameTimer} />
+          <VStack spacing={4} w="56">
+            {!gameOn ? (
+              <Button
+                colorScheme={'teal'}
+                onClick={onClickStart}
+                size={{ base: 'md', sm: 'lg' }}
+              >
+                Start{gameTimer === 0 && ' Again'}
+              </Button>
+            ) : (
+              <Button
+                colorScheme={'orange'}
+                onClick={onClickEnd}
+                size={{ base: 'md', sm: 'lg' }}
+              >
+                End round
+              </Button>
+            )}
+            {gameOver && (
+              <Center>
+                <Tag
+                  size={{ base: 'md', sm: 'lg' }}
+                  colorScheme={'red'}
+                  variant={'solid'}
+                  fontWeight="bold"
+                >
+                  Game Over
+                </Tag>
+              </Center>
+            )}
+          </VStack>
         </HStack>
-      </HStack>
-      <SimpleGrid columns={{ base: 4, md: 5, lg: 6 }}>
-        {alphabet.map((letter) =>
-          LetterCard({
-            letter,
-            clicked: clicked.includes(letter),
-            onClick: () => {
-              if (!gameTimer) return;
-              setGameTimer(100);
-              setClicked((clicked) => [...clicked, letter]);
-            },
-          })
-        )}
-      </SimpleGrid>
-    </Box>
+        <SimpleGrid columns={{ base: 4, md: 5, lg: 6 }}>
+          {alphabet.map((letter, index) =>
+            LetterCard({
+              key: letter + index,
+              letter,
+              clicked: clicked.includes(letter),
+              onClick: onClickLetter(letter),
+            })
+          )}
+        </SimpleGrid>
+      </Box>
+    </Center>
   );
 }
 
