@@ -2,9 +2,9 @@ import {
   Box,
   Button,
   Center,
-  HStack,
   Select,
   SimpleGrid,
+  Stack,
   Tag,
   VStack,
 } from '@chakra-ui/react';
@@ -109,7 +109,7 @@ function App() {
         color={'gray.300'}
         bgColor={'gray.800'}
       >
-        <HStack mb="5" h="32" alignItems={'center'} justifyContent={'center'}>
+        <Stack direction={{ base: 'column', sm: 'row' }} mb="5" alignItems={'center'} justifyContent={'center'}>
           <VStack spacing={4} w="56">
             <Button
               colorScheme={'teal'}
@@ -167,7 +167,7 @@ function App() {
               </Center>
             )}
           </VStack>
-        </HStack>
+        </Stack>
         <SimpleGrid columns={{ base: 4, md: 5, lg: 6 }}>
           {alphabet.map((letter, index) =>
             LetterCard({
