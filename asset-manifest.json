@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/tapple/static/css/main.a8c097a0.css",
-    "main.js": "/tapple/static/js/main.97bedbde.js",
+    "main.css": "/tapple/static/css/main.a7dbd347.css",
+    "main.js": "/tapple/static/js/main.66bf8d09.js",
     "index.html": "/tapple/index.html",
-    "main.a8c097a0.css.map": "/tapple/static/css/main.a8c097a0.css.map",
-    "main.97bedbde.js.map": "/tapple/static/js/main.97bedbde.js.map"
+    "main.a7dbd347.css.map": "/tapple/static/css/main.a7dbd347.css.map",
+    "main.66bf8d09.js.map": "/tapple/static/js/main.66bf8d09.js.map"
   },
   "entrypoints": [
-    "static/css/main.a8c097a0.css",
-    "static/js/main.97bedbde.js"
+    "static/css/main.a7dbd347.css",
+    "static/js/main.66bf8d09.js"
   ]
 }
