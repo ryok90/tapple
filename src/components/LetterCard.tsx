@@ -22,7 +22,7 @@ export const LetterCard = ({
     key={key}
   >
     <Center>
-      <Text fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }} fontWeight="bold">
+      <Text fontSize={{ base: 'xl', md: '3xl', lg: '4xl' }} fontWeight="bold">
         {letter}
       </Text>
     </Center>

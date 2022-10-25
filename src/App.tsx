@@ -2,9 +2,9 @@ import {
   Box,
   Button,
   Center,
+  HStack,
   Select,
   SimpleGrid,
-  Stack,
   Tag,
   VStack,
 } from '@chakra-ui/react';
@@ -31,6 +31,8 @@ function App() {
 
   const gameOver = useMemo(() => gameTimer === 0, [gameTimer]);
   const gameOn = useMemo(() => Boolean(gameTimer), [gameTimer]);
+
+  const buttonSize = { base: 'xs', sm: 'sm', md: 'md', lg: 'lg' };
 
   const onClickStart = () => {
     setClicked([]);
@@ -109,39 +111,28 @@ function App() {
         color={'gray.300'}
         bgColor={'gray.800'}
       >
-        <Stack direction={{ base: 'column', sm: 'row' }} mb="5" alignItems={'center'} justifyContent={'center'}>
-          <VStack spacing={4} w="56">
-            <Button
-              colorScheme={'teal'}
-              onClick={() => setThemeTimer(20)}
-              size={{ base: 'md', sm: 'lg' }}
-            >
-              Sort Theme
-            </Button>
-            <Select
-              w={{ base: '36', lg: '44' }}
-              size={{ base: 'xs', md: 'sm' }}
-              variant={'solid'}
-              fontWeight="bold"
-              placeholder="Sort or select"
-              value={theme}
-              disabled={Boolean(themeTimer)}
-              onChange={(event) => setTheme(event.currentTarget.value)}
-            >
-              {themes.map((item, index) => (
-                <option value={item} key={item + index}>
-                  {item}
-                </option>
-              ))}
-            </Select>
+        <HStack
+          mb="4"
+          spacing={{ base: 2, sm: 4, md: 10 }}
+          alignItems={'center'}
+          justifyContent={'center'}
+        >
+          <Button
+            colorScheme={'teal'}
+            onClick={() => setThemeTimer(20)}
+            size={buttonSize}
+          >
+            Sort Theme
+          </Button>
+          <VStack spacing={4}>
+            <Timer timeLeft={gameTimer === undefined ? 100 : gameTimer} />
           </VStack>
-          <Timer timeLeft={gameTimer === undefined ? 100 : gameTimer} />
-          <VStack spacing={4} w="56">
+          <VStack spacing={4}>
             {!gameOn ? (
               <Button
                 colorScheme={'teal'}
                 onClick={onClickStart}
-                size={{ base: 'md', sm: 'lg' }}
+                size={buttonSize}
               >
                 Start{gameTimer === 0 && ' Again'}
               </Button>
@@ -149,7 +140,7 @@ function App() {
               <Button
                 colorScheme={'orange'}
                 onClick={onClickEnd}
-                size={{ base: 'md', sm: 'lg' }}
+                size={buttonSize}
               >
                 End round
               </Button>
@@ -157,7 +148,7 @@ function App() {
             {gameOver && (
               <Center>
                 <Tag
-                  size={{ base: 'md', sm: 'lg' }}
+                  size={{ base: 'sm', md: 'lg' }}
                   colorScheme={'red'}
                   variant={'solid'}
                   fontWeight="bold"
@@ -167,7 +158,26 @@ function App() {
               </Center>
             )}
           </VStack>
-        </Stack>
+        </HStack>
+        <Center mb="4">
+          <Select
+            w={{ base: '40', md: '44' }}
+            size={{ base: 'xs', md: 'sm' }}
+            bg="teal.900"
+            variant={'filled'}
+            fontWeight="bold"
+            placeholder="Sort or select"
+            value={theme}
+            disabled={Boolean(themeTimer)}
+            onChange={(event) => setTheme(event.currentTarget.value)}
+          >
+            {themes.map((item, index) => (
+              <option value={item} key={item + index}>
+                {item}
+              </option>
+            ))}
+          </Select>
+        </Center>
         <SimpleGrid columns={{ base: 4, md: 5, lg: 6 }}>
           {alphabet.map((letter, index) =>
             LetterCard({
