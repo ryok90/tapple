@@ -1,1 +1,0 @@
-{"version":3,"file":"static/css/main.a7dbd347.css","mappings":"AAAA,KACI,gBAAiB,CACjB,iCACJ,CAEA,KACI,6BACJ","sources":["styles.css"],"sourcesContent":["body {\n    min-height: 100vh;\n    min-height: -webkit-fill-available;\n}\n\nhtml {\n    height: -webkit-fill-available;\n}\n"],"names":[],"sourceRoot":""}
