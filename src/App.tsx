@@ -15,7 +15,7 @@ import {
   useState,
   useTransition,
 } from 'react';
-import { alphabet, themes } from './cconstants';
+import { alphabet, themes } from './constants';
 import { LetterCard } from './components/LetterCard';
 import { Timer } from './components/Timer';
 import Sound from 'react-sound';
